@@ -1,0 +1,29 @@
+{
+  "name": "aoc",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "bash -c 'part=part1 node index.js; part=part2 node index.js'",
+    "test": "jest",
+    "test:u": "jest --updateSnapshot",
+    "test:w": "jest --watchAll",
+    "test:wn": "jest --watchAll --notify",
+    "test:wun": "jest --watchAll --updateSnapshot --notify",
+    "docker:1": "docker build -t aoc2021-js . && docker run -e part=part1 aoc2021-js",
+    "docker:2": "docker build -t aoc2021-js . && docker run -e part=part2 aoc2021-js"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.3",
+    "jest": "^27.3.1",
+    "node-notifier": "^10.0.0"
+  },
+  "prettier": {
+    "tabWidth": 2,
+    "printWidth": 120,
+    "arrowParens": "avoid"
+  },
+  "jest": {
+    "verbose": true
+  }
+}
