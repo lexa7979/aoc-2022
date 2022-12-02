@@ -24,6 +24,7 @@ const testSetup2 = {
     ["scissors", "rock"],
   ],
 };
+
 describe("parseLinesIntoSetup", () => {
   const { parseLinesIntoSetup } = Import;
   it("works as expected", () => {
@@ -35,9 +36,7 @@ describe("parseLinesIntoSetup", () => {
 describe("calculateOutcomeOfRounds", () => {
   const { calculateOutcomeOfRounds } = Import;
   it("works as expected", () => {
-    const result = calculateOutcomeOfRounds(testSetup1);
-    expect(result).toEqual([8, 1, 6]);
-
+    expect(calculateOutcomeOfRounds(testSetup1)).toEqual([8, 1, 6]);
     expect(calculateOutcomeOfRounds(testSetup2)).toEqual([4, 1, 7]);
   });
 });
