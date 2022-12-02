@@ -1,5 +1,3 @@
-FROM alpine:latest
-COPY . /solution
-WORKDIR /solution
-
-CMD ./solution.sh
+FROM node:18-slim
+COPY ["index.js", "helpers.js", "input.txt", "./"]
+CMD node index.js
