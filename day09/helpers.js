@@ -4,14 +4,31 @@ const Global = {
   parseOptions: { transformMatch: null, asInteger: false, dontTrimInput: false },
 };
 
+module.exports = {
+  setParseOptions,
+  parseInputData,
+  getArrayRange,
+  getNthPermutationOfElements,
+  paintCoordinates,
+};
+
+/**
+ * @param {object} inputBag
+ * @param {RegExp | null} inputBag.transformMatch
+ *    e.g. /([RUDL]) (\d+)/
+ * @param {boolean | number[]} inputBag.asInteger
+ *    e.g. [2] or false
+ * @param {boolean | null} [inputBag.dontTrimInput]
+ */
 function setParseOptions({ transformMatch, asInteger, dontTrimInput = false }) {
+  // @ts-ignore
   Global.parseOptions = { transformMatch, asInteger, dontTrimInput };
 }
 
 /**
  * @param {string[] | null} lines
  *
- * @returns
+ * @returns {Array}
  */
 function parseInputData(lines = null) {
   /** @type {{ transformMatch?: object, asInteger: boolean | number[] }} */
@@ -94,9 +111,59 @@ function getNthPermutationOfElements(n, elements) {
   return permutationOfOtherElements ? [elements[indexOfFirstElement], ...permutationOfOtherElements] : null;
 }
 
-module.exports = {
-  setParseOptions,
-  parseInputData,
-  getArrayRange,
-  getNthPermutationOfElements,
-};
+/**
+ * @param {object} inputBag
+ * @param {Array} inputBag.list
+ *    e.g. ["0;0", "1;1", "-1;2"]
+ * @param {string} [inputBag.format]
+ *
+ * @returns {string[]}
+ *    e.g. "#..."
+ *         "..#."
+ *         ".S.."
+ */
+function paintCoordinates({ list, format = '"x;y"' }) {
+  let coordinates;
+  switch (format) {
+    case '"x;y"':
+      coordinates = list.map(text => {
+        const parsedText = text.split(";").map(part => parseInt(part, 10));
+        return { x: parsedText[0], y: parsedText[1] };
+      });
+      break;
+
+    case "{x,y}":
+      const _isWrongFormat = item => !item || typeof item !== "object" || item.x == null || item.y == null;
+      if (list.some(_isWrongFormat)) {
+        throw new Error(`List-item has wrong format (${JSON.stringify(list.find(_isWrongFormat))})`);
+      }
+      coordinates = list;
+      break;
+
+    default:
+      throw new Error(`Unsupported format (${format})`);
+  }
+
+  const minX = Math.min(0, ...coordinates.map(pos => pos.x));
+  const maxX = Math.max(0, ...coordinates.map(pos => pos.x));
+  const minY = Math.min(0, ...coordinates.map(pos => pos.y));
+  const maxY = Math.max(0, ...coordinates.map(pos => pos.y));
+
+  const paintedMap = [];
+
+  for (let posY = maxY; posY >= minY; posY--) {
+    let currLine = "";
+    for (let posX = minX; posX <= maxX; posX++) {
+      if (coordinates.some(pos => pos.x === posX && pos.y === posY)) {
+        currLine += posX === 0 && posY === 0 ? "S" : "#";
+      } else if (posX === 0 && posY === 0) {
+        currLine += "s";
+      } else {
+        currLine += ".";
+      }
+    }
+    paintedMap.push(currLine);
+  }
+
+  return paintedMap;
+}

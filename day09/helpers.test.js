@@ -137,3 +137,95 @@ describe.skip("getNthPermutationOfElements", () => {
     ]);
   });
 });
+
+describe.skip("paintCoordinates", () => {
+  const { paintCoordinates } = Helpers;
+
+  const map1 = [
+    //
+    "...........#",
+    "............",
+    "............",
+    "............",
+    "..#.........",
+    "............",
+    "........#...",
+    ".....#..#...",
+    "............",
+    ".#..s.......",
+    "............",
+    "............",
+    ".....#......",
+    "............",
+    "............",
+    "#...........",
+  ];
+
+  const map2 = [
+    //
+    "..##.",
+    "...##",
+    ".####",
+    "....#",
+    "S###.",
+  ];
+
+  it("- when no coordinates are given - works as expected", () => {
+    const result = paintCoordinates({ list: [] });
+    expect(result).toEqual(["s"]);
+  });
+
+  it("- when some coordinates are given as string - works as expected", () => {
+    const result = paintCoordinates({
+      list: [
+        //
+        "-3;0",
+        "1;-3",
+        "-2;5",
+        "-4;-6",
+        "7;9",
+        "4;2",
+        "4;3",
+        "1;2",
+      ],
+    });
+    expect(result).toEqual(map1);
+  });
+
+  it("- when some coordinates are given object - works as expected", () => {
+    const list = [
+      //
+      { x: -3, y: 0 },
+      { x: 1, y: -3 },
+      { x: -2, y: 5 },
+      { x: -4, y: -6 },
+      { x: 7, y: 9 },
+      { x: 4, y: 2 },
+      { x: 4, y: 3 },
+      { x: 1, y: 2 },
+    ];
+    expect(paintCoordinates({ list, format: "{x,y}" })).toEqual(map1);
+  });
+
+  it("- when some other coordinates are given as string - works as expected", () => {
+    const result = paintCoordinates({
+      list: [
+        //
+        "0;0",
+        "1;0",
+        "2;0",
+        "3;0",
+        "4;1",
+        "4;2",
+        "4;3",
+        "3;4",
+        "2;4",
+        "3;3",
+        "3;2",
+        "2;2",
+        "1;2",
+      ],
+    });
+    expect(result).toEqual(map2);
+  });
+});
