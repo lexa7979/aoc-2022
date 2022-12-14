@@ -24,7 +24,10 @@ function getSolutionPart1() {
   const rocks = mapIntoRocks(setup);
   const sand = simulateSand(rocks, true);
 
-  // console.log(Helpers.paintCoordinates({ list: rocks, list2: sand, format: "list[-y] === [x1,x2,x3,...]" }));
+  // const painting = Helpers.paintCoordinates({ list: rocks, list2: sand, format: "list[-y] === [x1,x2,x3,...]" });
+  // for (let i = 0; i < painting.length; i += 50) {
+  //   console.log(painting.slice(i, i + 50));
+  // }
 
   const result = countSand(sand);
   return result;
@@ -36,7 +39,10 @@ function getSolutionPart2() {
   const rocks = mapIntoRocks(setup);
   const sand = simulateSand(rocks, false);
 
-  // console.log(Helpers.paintCoordinates({ list: sand, format: "list[-y] === [x1,x2,x3,...]" }));
+  // const painting = Helpers.paintCoordinates({ list: rocks, list2: sand, format: "list[-y] === [x1,x2,x3,...]" });
+  // for (let i = 0; i < painting.length; i += 50) {
+  //   console.log(painting.slice(i, i + 50));
+  // }
 
   const result = countSand(sand);
   return result;
