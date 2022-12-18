@@ -267,7 +267,10 @@ class Progress {
     );
   }
 
-  finalize() {
+  /**
+   * @param {number | null} [currStepCount]
+   */
+  finalize(currStepCount = null) {
     if (!this.handleLogEvent || !this.startTS) {
       return;
     }
@@ -285,7 +288,7 @@ class Progress {
       [
         `${new Date().toLocaleTimeString()}:`,
         "finished,",
-        `processed ${this.maxStepCount} steps`,
+        `processed ${currStepCount || this.maxStepCount} steps`,
         `in ${runningTimeText}`,
       ].join(" ")
     );

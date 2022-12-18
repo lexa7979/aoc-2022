@@ -230,7 +230,7 @@ describe.skip("paintCoordinates", () => {
   });
 });
 
-describe("Progress", () => {
+describe.skip("Progress", () => {
   const { Progress } = Helpers;
 
   jest.useFakeTimers();
@@ -263,6 +263,40 @@ describe("Progress", () => {
       "11:04:08: 94% done (1699 steps), ready ~11:04:17 (9.9 steps/sec)",
       "11:04:13: 97% done (1749 steps), ready ~11:04:17 (9.9 steps/sec)",
       "11:04:17: finished, processed 1790 steps in 00:02:59",
+    ]);
+  });
+
+  it("works as expected when process is finalized earlier", () => {
+    jest.setSystemTime(new Date("2022-12-18T10:01:18.722Z"));
+
+    const log = [];
+    const maxStepCount = 1790;
+    const obj = new Progress({ handleLogEvent: data => log.push(data) });
+
+    obj.init(maxStepCount);
+    for (let i = 0; i < maxStepCount; i++) {
+      jest.advanceTimersByTime(100);
+      obj.step(i);
+      if (i > 0.79 * maxStepCount) {
+        obj.finalize(i);
+        break;
+      }
+    }
+
+    expect(log.slice(0, 5)).toEqual([
+      "11:01:18: init, awaiting 1790 steps",
+      "11:01:23: 2% done (49 steps), ready ~11:04:21 (9.7 steps/sec)",
+      "11:01:28: 5% done (99 steps), ready ~11:04:19 (9.9 steps/sec)",
+      "11:01:33: 8% done (149 steps), ready ~11:04:18 (9.9 steps/sec)",
+      "11:01:38: 11% done (199 steps), ready ~11:04:18 (9.9 steps/sec)",
+    ]);
+
+    expect(log.slice(-5)).toEqual([
+      "11:03:23: 69% done (1249 steps), ready ~11:04:17 (9.9 steps/sec)",
+      "11:03:28: 72% done (1299 steps), ready ~11:04:17 (9.9 steps/sec)",
+      "11:03:33: 75% done (1349 steps), ready ~11:04:17 (9.9 steps/sec)",
+      "11:03:38: 78% done (1399 steps), ready ~11:04:17 (9.9 steps/sec)",
+      "11:03:40: finished, processed 1415 steps in 00:02:21",
     ]);
   });
 

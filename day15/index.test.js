@@ -96,7 +96,7 @@ describe("getSolutionPart1", () => {
 describe("getSolutionPart2", () => {
   const { getSolutionPart2 } = Import;
   it("- when used with real data - works as expected", () => {
-    const result = getSolutionPart2();
+    const result = getSolutionPart2(console.log);
     expect(result).toBe(11016575214126);
   });
 });

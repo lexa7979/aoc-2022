@@ -18,18 +18,22 @@ if (process.env.NODE_ENV !== "test") {
   }
 }
 
-function getSolutionPart1() {
+function getSolutionPart1(handleLogEvent) {
   const lines = Helpers.parseInputData();
   const setup = parseLinesIntoSetup(lines, true);
   return countNonBeaconCoordinatesOfLine(setup, 2000000);
 }
 
-function getSolutionPart2() {
+function getSolutionPart2(handleLogEvent) {
   const lines = Helpers.parseInputData();
   const setup = parseLinesIntoSetup(lines, false);
+  const progress = new Helpers.Progress({ handleLogEvent });
+  progress.init(4000000);
   for (let lineY = 0; lineY <= 4000000; lineY++) {
+    progress.step(lineY);
     const posXList = getBeaconCoordinatesOfLine(setup, lineY);
     if (posXList[0]) {
+      progress.finalize(lineY);
       return posXList[0] * 4000000 + lineY;
     }
   }
