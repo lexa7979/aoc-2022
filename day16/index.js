@@ -1,6 +1,7 @@
 // @ts-check
 
 const Helpers = require("./helpers");
+const Progress = require("./progress");
 
 Helpers.setParseOptions({
   transformMatch: null,
@@ -218,6 +219,7 @@ function getReleasedPressureOnPath({ shortestPaths, maxMinutes, setup, targets }
 
 function yieldCombinedPaths({ setup, maxPathLength, yieldCallback, onProgress }) {
   const shortestPaths = listShortestPathsBetweenInterestingValves(setup);
+  const progress = new Progress({ handleLogEvent: onProgress });
 
   let isRunning = true;
 
@@ -236,8 +238,6 @@ function yieldCombinedPaths({ setup, maxPathLength, yieldCallback, onProgress })
     yieldsShorterPaths: true,
   });
 
-  onProgress && onProgress({ init: `Number of collected first paths: ${listOfFirstPaths.length}` });
-
   const _processPairOfPaths = (item1, item2) => {
     if (!yieldCallback({ item1, item2 })) {
       isRunning = false;
@@ -246,17 +246,15 @@ function yieldCombinedPaths({ setup, maxPathLength, yieldCallback, onProgress })
     return true;
   };
 
-  let latestProgressInfo = null;
+  progress.init(listOfFirstPaths.length);
+
   listOfFirstPaths.forEach((item1, index) => {
     if (!isRunning) {
       return;
     }
 
-    const progress = Math.floor(((index + 1) / listOfFirstPaths.length) * 100);
-    if (latestProgressInfo !== progress) {
-      onProgress && onProgress({ progress });
-      latestProgressInfo = progress;
-    }
+    progress.step(index);
+
     yieldPossiblePaths({
       shortestPaths,
       setup,
@@ -266,6 +264,8 @@ function yieldCombinedPaths({ setup, maxPathLength, yieldCallback, onProgress })
       yieldsShorterPaths: false,
     });
   });
+
+  progress.finalize();
 }
 
 function yieldPossiblePaths({

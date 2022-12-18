@@ -123,7 +123,7 @@ function getNthPermutationOfElements(n, elements) {
  * @param {object} inputBag
  * @param {object} inputBag.list
  *    e.g. ["0;0", "1;1", "-1;2"]
- * @param {object | null} inputBag.list2
+ * @param {object | null} [inputBag.list2]
  * @param {string} [inputBag.format]
  *
  * @returns {string[]}

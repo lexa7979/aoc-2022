@@ -214,7 +214,7 @@ describe.skip("getSolutionPart1", () => {
 });
 
 describe.skip("getSolutionPart2", () => {
-  // took 80 minutes...
+  // took 60 minutes...
   const { getSolutionPart2 } = Import;
   it("- when used with real data - works as expected", () => {
     // @ts-ignore
