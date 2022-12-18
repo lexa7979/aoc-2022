@@ -50,24 +50,6 @@ describe("getMaxPressureToRelease", () => {
   });
 });
 
-// describe.skip("getMaxPressureToReleaseWithHelpingElephant", () => {
-//   const { getMaxPressureToReleaseWithHelpingElephant } = Import;
-//   it("works as expected", () => {
-//     const result = getMaxPressureToReleaseWithHelpingElephant(testSetup1);
-//     expect(result).not.toBe(3459);
-//     expect(result).not.toBe(1752);
-//     expect(result).toBe(1707);
-//   });
-// });
-
-// describe.skip("getMaxPressureToReleaseWithHelpingElephantAndAiming", () => {
-//   const { getMaxPressureToReleaseWithHelpingElephantAndAiming } = Import;
-//   it("works as expected", () => {
-//     const result = getMaxPressureToReleaseWithHelpingElephantAndAiming(testSetup1);
-//     expect(result).toBe(1707);
-//   });
-// });
-
 describe("findShortestPath", () => {
   const { findShortestPath } = Import;
   it("works as expected", () => {
@@ -101,92 +83,6 @@ describe("listShortestPathsBetweenInterestingValves", () => {
   });
 });
 
-// describe.skip("listPossiblePathsWithHelpingElephant", () => {
-//   const { listPossiblePathsWithHelpingElephant } = Import;
-//   it("works as expected", () => {
-//     const result = listPossiblePathsWithHelpingElephant(testSetup1);
-//     expect(result).toHaveLength(360);
-//     expect(result.slice(0, 10)).toEqual([
-//       "AA-BB-DD-HH;AA-CC-EE-JJ",
-//       "AA-BB-DD-JJ;AA-CC-EE-HH",
-//       "AA-BB-DD-EE;AA-CC-HH-JJ",
-//       "AA-BB-DD-JJ;AA-CC-HH-EE",
-//       "AA-BB-DD-EE;AA-CC-JJ-HH",
-//       "AA-BB-DD-HH;AA-CC-JJ-EE",
-//       "AA-BB-EE-HH;AA-CC-DD-JJ",
-//       "AA-BB-EE-JJ;AA-CC-DD-HH",
-//       "AA-BB-EE-DD;AA-CC-HH-JJ",
-//       "AA-BB-EE-JJ;AA-CC-HH-DD",
-//     ]);
-
-//     // const lines = Helpers.parseInputData();
-//     // const setup = Import.parseLinesIntoSetup(lines, false);
-//     // expect(listPossiblePathsWithHelpingElephant(setup)).toHaveLength(120);
-//   });
-// });
-
-// describe.skip("yieldPossiblePathsWithHelpingElephant", () => {
-//   const { yieldPossiblePathsWithHelpingElephant } = Import;
-//   it("works as expected", () => {
-//     const results = [];
-//     const _yield = item => {
-//       results.push(item);
-//       return true;
-//     };
-//     yieldPossiblePathsWithHelpingElephant(testSetup1, _yield);
-//     expect(results).toHaveLength(360);
-//     expect(results.slice(0, 5)).toEqual([
-//       {
-//         chosenTargets: [
-//           ["AA", "BB", "DD", "HH"],
-//           ["AA", "CC", "EE", "JJ"],
-//         ],
-//         pathLengths: [10, 11],
-//       },
-//       {
-//         chosenTargets: [
-//           ["AA", "BB", "DD", "JJ"],
-//           ["AA", "CC", "EE", "HH"],
-//         ],
-//         pathLengths: [9, 10],
-//       },
-//       {
-//         chosenTargets: [
-//           ["AA", "BB", "DD", "EE"],
-//           ["AA", "CC", "HH", "JJ"],
-//         ],
-//         pathLengths: [7, 17],
-//       },
-//       {
-//         chosenTargets: [
-//           ["AA", "BB", "DD", "JJ"],
-//           ["AA", "CC", "HH", "EE"],
-//         ],
-//         pathLengths: [9, 13],
-//       },
-//       {
-//         chosenTargets: [
-//           ["AA", "BB", "DD", "EE"],
-//           ["AA", "CC", "JJ", "HH"],
-//         ],
-//         pathLengths: [7, 16],
-//       },
-//     ]);
-
-//     let count = 0;
-//     const _yield2 = () => {
-//       count++;
-//       return count < 100000000;
-//     };
-
-//     const lines = Helpers.parseInputData();
-//     const setup = Import.parseLinesIntoSetup(lines, false);
-//     yieldPossiblePathsWithHelpingElephant(setup, _yield2);
-//     expect(count).toBe(100000);
-//     // expect(listPossiblePathsWithHelpingElephant(setup)).toHaveLength(120);
-//   });
-// });
-
 describe("yieldPossiblePaths", () => {
   const { yieldPossiblePaths } = Import;
   it("works as expected on test data", () => {
@@ -206,67 +102,12 @@ describe("yieldPossiblePaths", () => {
       yieldsShorterPaths: true,
     });
     expect(results).toHaveLength(15);
-    expect(results).toEqual([
-      {
-        pathLength: 2,
-        targets: ["DD"],
-      },
-      {
-        pathLength: 4,
-        targets: ["DD", "EE"],
-      },
-      {
-        pathLength: 8,
-        targets: ["DD", "EE", "HH"],
-      },
-      {
-        pathLength: 7,
-        targets: ["DD", "HH"],
-      },
-      {
-        pathLength: 11,
-        targets: ["DD", "HH", "EE"],
-      },
-      {
-        pathLength: 3,
-        targets: ["EE"],
-      },
-      {
-        pathLength: 5,
-        targets: ["EE", "DD"],
-      },
-      {
-        pathLength: 10,
-        targets: ["EE", "DD", "HH"],
-      },
-      {
-        pathLength: 7,
-        targets: ["EE", "HH"],
-      },
-      {
-        pathLength: 12,
-        targets: ["EE", "HH", "DD"],
-      },
-      {
-        pathLength: 6,
-        targets: ["HH"],
-      },
-      {
-        pathLength: 11,
-        targets: ["HH", "DD"],
-      },
-      {
-        pathLength: 13,
-        targets: ["HH", "DD", "EE"],
-      },
-      {
-        pathLength: 10,
-        targets: ["HH", "EE"],
-      },
-      {
-        pathLength: 12,
-        targets: ["HH", "EE", "DD"],
-      },
+    expect(results.slice(0, 5)).toEqual([
+      { pathLength: 2, targets: ["DD"] },
+      { pathLength: 4, targets: ["DD", "EE"] },
+      { pathLength: 8, targets: ["DD", "EE", "HH"] },
+      { pathLength: 7, targets: ["DD", "HH"] },
+      { pathLength: 11, targets: ["DD", "HH", "EE"] },
     ]);
   });
 
@@ -308,51 +149,6 @@ describe("yieldPossiblePaths", () => {
   });
 });
 
-// describe("yieldCombinedPaths", () => {
-//   const { yieldCombinedPaths } = Import;
-//   it("works as expected", () => {
-//     let results = [];
-//     const _yield = item => {
-//       results.push(item);
-//       return true;
-//     };
-
-//     yieldCombinedPaths({ setup: testSetup1, maxPathLength: 26, yieldCallback: _yield });
-//     expect(results.slice(0, 3)).toEqual([
-//       {
-//         item1: {
-//           pathLength: 2,
-//           targets: ["BB"],
-//         },
-//         item2: {
-//           pathLength: 19,
-//           targets: ["CC", "DD", "EE", "HH", "JJ"],
-//         },
-//       },
-//       {
-//         item1: {
-//           pathLength: 4,
-//           targets: ["BB", "CC"],
-//         },
-//         item2: {
-//           pathLength: 16,
-//           targets: ["DD", "EE", "HH", "JJ"],
-//         },
-//       },
-//       {
-//         item1: {
-//           pathLength: 6,
-//           targets: ["BB", "CC", "DD"],
-//         },
-//         item2: {
-//           pathLength: 15,
-//           targets: ["EE", "HH", "JJ"],
-//         },
-//       },
-//     ]);
-//   });
-// });
-
 describe("getReleasedPressureOnPath", () => {
   const { getReleasedPressureOnPath } = Import;
   it("works as expected with test data", () => {
@@ -389,10 +185,10 @@ describe("getReleasedPressureOnPath", () => {
   });
 });
 
-describe("getMaxPressureToReleasePart2", () => {
-  const { getMaxPressureToReleasePart2 } = Import;
+describe("getMaxPressureToReleaseWithHelpingElephant", () => {
+  const { getMaxPressureToReleaseWithHelpingElephant } = Import;
   it("works as expected", () => {
-    const result = getMaxPressureToReleasePart2(testSetup1);
+    const result = getMaxPressureToReleaseWithHelpingElephant(testSetup1);
     expect(result).toBe(1707);
   });
 });
@@ -409,6 +205,7 @@ describe.skip("placeholder", () => {
  **/
 
 describe.skip("getSolutionPart1", () => {
+  // took 3 minutes...
   const { getSolutionPart1 } = Import;
   it("- when used with real data - works as expected", () => {
     const result = getSolutionPart1();
@@ -417,9 +214,11 @@ describe.skip("getSolutionPart1", () => {
 });
 
 describe.skip("getSolutionPart2", () => {
+  // took 80 minutes...
   const { getSolutionPart2 } = Import;
   it("- when used with real data - works as expected", () => {
-    const result = getSolutionPart2();
+    // @ts-ignore
+    const result = getSolutionPart2(console.log, console.log);
     expect(result).not.toBe(1691);
     expect(result).not.toBe(1730);
     expect(result).not.toBe(2232);
