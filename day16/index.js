@@ -1,7 +1,6 @@
 // @ts-check
 
 const Helpers = require("./helpers");
-const Progress = require("./progress");
 
 Helpers.setParseOptions({
   transformMatch: null,
@@ -219,7 +218,7 @@ function getReleasedPressureOnPath({ shortestPaths, maxMinutes, setup, targets }
 
 function yieldCombinedPaths({ setup, maxPathLength, yieldCallback, onProgress }) {
   const shortestPaths = listShortestPathsBetweenInterestingValves(setup);
-  const progress = new Progress({ handleLogEvent: onProgress });
+  const progress = new Helpers.Progress({ handleLogEvent: onProgress });
 
   let isRunning = true;
 
