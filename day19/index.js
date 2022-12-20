@@ -2,11 +2,28 @@
 
 const Helpers = require("./helpers");
 
+const { ResultWithMostGeodes } = hoistClassDefinitions();
+
+module.exports = {
+  getSolutionPart1,
+  getSolutionPart2,
+
+  parseLinesIntoSetup,
+  ResultWithMostGeodes,
+};
+
 Helpers.setParseOptions({
   transformMatch: null,
   asInteger: false,
   dontTrimInput: true,
 });
+
+const ORE = "ore";
+const CLAY = "clay";
+const OBSIDIAN = "obsidian";
+const GEODE = "geode";
+const RESOURCE_TYPES = [ORE, CLAY, OBSIDIAN, GEODE];
+const EMPTY_RESOURCES = Object.freeze({ ore: 0, clay: 0, obsidian: 0, geode: 0 });
 
 if (process.env.NODE_ENV !== "test") {
   console.log("Javascript");
@@ -51,13 +68,6 @@ function getSolutionPart2(handleLogEvent) {
 
   return numberOfGeodesByBlueprint.reduce((acc, curr) => acc * curr, 1);
 }
-
-const ORE = "ore";
-const CLAY = "clay";
-const OBSIDIAN = "obsidian";
-const GEODE = "geode";
-const RESOURCE_TYPES = [ORE, CLAY, OBSIDIAN, GEODE];
-const EMPTY_RESOURCES = Object.freeze({ ore: 0, clay: 0, obsidian: 0, geode: 0 });
 
 /**
  * @typedef SETUP
@@ -108,153 +118,157 @@ function parseLinesIntoSetup(lines, isPartOne) {
   return setup;
 }
 
-class ResultWithMostGeodes {
-  /** @param {{ blueprint: object }} inputBag */
-  constructor({ blueprint }) {
-    /** @type {BLUEPRINT} */
-    this.blueprint = blueprint;
+function hoistClassDefinitions() {
+  class ResultWithMostGeodes {
+    /** @param {{ blueprint: object }} inputBag */
+    constructor({ blueprint }) {
+      /** @type {BLUEPRINT} */
+      this.blueprint = blueprint;
 
-    /** @type {{ ore: RESOURCES, clay: RESOURCES, obsidian: RESOURCES, geode: RESOURCES }} */ // @ts-ignore
-    this.costsByRobotType = RESOURCE_TYPES.reduce((acc, currType) => {
-      acc[currType] = this.blueprint[`${currType}RobotCost`];
-      return acc;
-    }, {});
+      /** @type {{ ore: RESOURCES, clay: RESOURCES, obsidian: RESOURCES, geode: RESOURCES }} */ // @ts-ignore
+      this.costsByRobotType = RESOURCE_TYPES.reduce((acc, currType) => {
+        acc[currType] = this.blueprint[`${currType}RobotCost`];
+        return acc;
+      }, {});
 
-    /** @type {number} */
-    this.maxNumberOfOreRobotsNeeded = Math.max(
-      this.costsByRobotType.clay.ore || 0,
-      this.costsByRobotType.obsidian.ore || 0,
-      this.costsByRobotType.geode.ore || 0
-    );
-  }
+      /** @type {number} */
+      this.maxNumberOfOreRobotsNeeded = Math.max(
+        this.costsByRobotType.clay.ore || 0,
+        this.costsByRobotType.obsidian.ore || 0,
+        this.costsByRobotType.geode.ore || 0
+      );
+    }
 
-  /** @param {number} maxMinutes */
-  getResult(maxMinutes) {
-    /** @type {{ robotsByMinute: Array<string | null>, availableResources: RESOURCES }} */
-    const bestResult = { robotsByMinute: [], availableResources: { ...EMPTY_RESOURCES } };
+    /** @param {number} maxMinutes */
+    getResult(maxMinutes) {
+      /** @type {{ robotsByMinute: Array<string | null>, availableResources: RESOURCES }} */
+      const bestResult = { robotsByMinute: [], availableResources: { ...EMPTY_RESOURCES } };
 
-    /** @param {Array<string | null>} robotsByMinute */
-    /** @param {RESOURCES} availableResources */
-    const _memorizeResult = (robotsByMinute, availableResources) => {
-      for (let i = 0; i < 4; i++) {
-        const type = [GEODE, OBSIDIAN, CLAY, ORE][i];
-        if (bestResult.availableResources[type] > availableResources[type]) {
+      /** @param {Array<string | null>} robotsByMinute */
+      /** @param {RESOURCES} availableResources */
+      const _memorizeResult = (robotsByMinute, availableResources) => {
+        for (let i = 0; i < 4; i++) {
+          const type = [GEODE, OBSIDIAN, CLAY, ORE][i];
+          if (bestResult.availableResources[type] > availableResources[type]) {
+            return;
+          }
+          if (bestResult.availableResources[type] < availableResources[type]) {
+            break;
+          }
+        }
+        bestResult.robotsByMinute = robotsByMinute;
+        bestResult.availableResources = availableResources;
+      };
+
+      /** @param {Array<string | null>} robotsByMinute */
+      /** @param {string} nextRobotTypeToBuild */
+      const _recursion = (robotsByMinute, nextRobotTypeToBuild) => {
+        const robotCountByType = { ...EMPTY_RESOURCES };
+        robotsByMinute.filter(Boolean).forEach(type => {
+          robotCountByType[type]++;
+        });
+
+        if (
+          robotCountByType.ore > this.maxNumberOfOreRobotsNeeded ||
+          (nextRobotTypeToBuild === OBSIDIAN && robotCountByType.clay === 0) ||
+          (nextRobotTypeToBuild === GEODE && robotCountByType.obsidian === 0)
+        ) {
           return;
         }
-        if (bestResult.availableResources[type] < availableResources[type]) {
-          break;
+
+        const minute = robotsByMinute.length;
+        const remainingMinutes = maxMinutes - minute;
+
+        const producedResources = this._getProducedResources(robotsByMinute, minute);
+        const availableResources = this._getDecreasedResources({
+          currResources: producedResources,
+          changes: this._getConsumedResources(robotsByMinute),
+        });
+
+        if (minute > maxMinutes) {
+          _memorizeResult(robotsByMinute, availableResources);
+          return;
         }
-      }
-      bestResult.robotsByMinute = robotsByMinute;
-      bestResult.availableResources = availableResources;
-    };
+
+        const optimisticMaximumOfGeodesToProduceUntilTheEnd = Helpers.getArrayRange(0, remainingMinutes).reduce(
+          (acc, minutesAfterNow) => acc + robotCountByType.geode + minutesAfterNow,
+          producedResources.geode || 0
+        );
+        // @ts-ignore
+        if (optimisticMaximumOfGeodesToProduceUntilTheEnd < bestResult.availableResources.geode) {
+          return;
+        }
+
+        const canBuildRobotNow = this._areFewerOrSameResources(
+          this.costsByRobotType[nextRobotTypeToBuild],
+          availableResources
+        );
+        if (canBuildRobotNow) {
+          RESOURCE_TYPES.forEach(newRobotType => _recursion([...robotsByMinute, nextRobotTypeToBuild], newRobotType));
+        } else {
+          _recursion([...robotsByMinute, null], nextRobotTypeToBuild);
+        }
+      };
+
+      _recursion([ORE], ORE);
+      _recursion([ORE], CLAY);
+
+      return bestResult;
+    }
 
     /** @param {Array<string | null>} robotsByMinute */
-    /** @param {string} nextRobotTypeToBuild */
-    const _recursion = (robotsByMinute, nextRobotTypeToBuild) => {
-      const robotCountByType = { ...EMPTY_RESOURCES };
-      robotsByMinute.filter(Boolean).forEach(type => {
-        robotCountByType[type]++;
+    /** @param {number} minute */
+    _getProducedResources(robotsByMinute, minute) {
+      /** @type {RESOURCES} */
+      const result = { ...EMPTY_RESOURCES };
+      robotsByMinute.forEach((robotType, buildMinute) => {
+        if (robotType != null && buildMinute < minute && result[robotType] != null) {
+          result[robotType] += minute - buildMinute - 1;
+        }
       });
+      return result;
+    }
 
-      if (
-        robotCountByType.ore > this.maxNumberOfOreRobotsNeeded ||
-        (nextRobotTypeToBuild === OBSIDIAN && robotCountByType.clay === 0) ||
-        (nextRobotTypeToBuild === GEODE && robotCountByType.obsidian === 0)
-      ) {
-        return;
-      }
-
-      const minute = robotsByMinute.length;
-      const remainingMinutes = maxMinutes - minute;
-
-      const producedResources = this._getProducedResources(robotsByMinute, minute);
-      const availableResources = this._getDecreasedResources({
-        currResources: producedResources,
-        changes: this._getConsumedResources(robotsByMinute),
+    /** @param {Array<string | null>} robotsByMinute */
+    _getConsumedResources(robotsByMinute) {
+      /** @type {RESOURCES} */
+      const result = { ...EMPTY_RESOURCES };
+      robotsByMinute.forEach((robotType, buildMinute) => {
+        if (robotType != null && buildMinute > 0) {
+          RESOURCE_TYPES.forEach(type => {
+            result[type] += this.costsByRobotType[robotType][type] || 0;
+          });
+        }
       });
+      return result;
+    }
 
-      if (minute > maxMinutes) {
-        _memorizeResult(robotsByMinute, availableResources);
-        return;
-      }
+    /** @param {{ currResources: RESOURCES, changes: RESOURCES }} inputBag */
+    _getIncreasedResources({ currResources, changes }) {
+      const result = {};
+      RESOURCE_TYPES.forEach(type => {
+        result[type] = (currResources[type] || 0) + (changes[type] || 0);
+      });
+      return result;
+    }
 
-      const optimisticMaximumOfGeodesToProduceUntilTheEnd = Helpers.getArrayRange(0, remainingMinutes).reduce(
-        (acc, minutesAfterNow) => acc + robotCountByType.geode + minutesAfterNow,
-        producedResources.geode || 0
-      );
-      // @ts-ignore
-      if (optimisticMaximumOfGeodesToProduceUntilTheEnd < bestResult.availableResources.geode) {
-        return;
-      }
+    /** @param {{ currResources: RESOURCES, changes: RESOURCES }} inputBag */
+    _getDecreasedResources({ currResources, changes }) {
+      const result = {};
+      RESOURCE_TYPES.forEach(type => {
+        result[type] = (currResources[type] || 0) - (changes[type] || 0);
+      });
+      return result;
+    }
 
-      const canBuildRobotNow = this._areFewerOrSameResources(
-        this.costsByRobotType[nextRobotTypeToBuild],
-        availableResources
-      );
-      if (canBuildRobotNow) {
-        RESOURCE_TYPES.forEach(newRobotType => _recursion([...robotsByMinute, nextRobotTypeToBuild], newRobotType));
-      } else {
-        _recursion([...robotsByMinute, null], nextRobotTypeToBuild);
-      }
-    };
-
-    _recursion([ORE], ORE);
-    _recursion([ORE], CLAY);
-
-    return bestResult;
+    /** @param {RESOURCES} fewer */
+    /** @param {RESOURCES} more */
+    _areFewerOrSameResources(fewer, more) {
+      return RESOURCE_TYPES.every(type => !fewer[type] || fewer[type] <= more[type]);
+    }
   }
 
-  /** @param {Array<string | null>} robotsByMinute */
-  /** @param {number} minute */
-  _getProducedResources(robotsByMinute, minute) {
-    /** @type {RESOURCES} */
-    const result = { ...EMPTY_RESOURCES };
-    robotsByMinute.forEach((robotType, buildMinute) => {
-      if (robotType != null && buildMinute < minute && result[robotType] != null) {
-        result[robotType] += minute - buildMinute - 1;
-      }
-    });
-    return result;
-  }
-
-  /** @param {Array<string | null>} robotsByMinute */
-  _getConsumedResources(robotsByMinute) {
-    /** @type {RESOURCES} */
-    const result = { ...EMPTY_RESOURCES };
-    robotsByMinute.forEach((robotType, buildMinute) => {
-      if (robotType != null && buildMinute > 0) {
-        RESOURCE_TYPES.forEach(type => {
-          result[type] += this.costsByRobotType[robotType][type] || 0;
-        });
-      }
-    });
-    return result;
-  }
-
-  /** @param {{ currResources: RESOURCES, changes: RESOURCES }} inputBag */
-  _getIncreasedResources({ currResources, changes }) {
-    const result = {};
-    RESOURCE_TYPES.forEach(type => {
-      result[type] = (currResources[type] || 0) + (changes[type] || 0);
-    });
-    return result;
-  }
-
-  /** @param {{ currResources: RESOURCES, changes: RESOURCES }} inputBag */
-  _getDecreasedResources({ currResources, changes }) {
-    const result = {};
-    RESOURCE_TYPES.forEach(type => {
-      result[type] = (currResources[type] || 0) - (changes[type] || 0);
-    });
-    return result;
-  }
-
-  /** @param {RESOURCES} fewer */
-  /** @param {RESOURCES} more */
-  _areFewerOrSameResources(fewer, more) {
-    return RESOURCE_TYPES.every(type => !fewer[type] || fewer[type] <= more[type]);
-  }
+  return { ResultWithMostGeodes };
 }
 
 /** @param {SETUP} setup */
@@ -267,11 +281,3 @@ function placeholder1(setup, handleLogEvent) {
 }
 
 /**/
-
-module.exports = {
-  getSolutionPart1,
-  getSolutionPart2,
-
-  parseLinesIntoSetup,
-  ResultWithMostGeodes,
-};
