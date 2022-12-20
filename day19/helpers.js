@@ -298,6 +298,54 @@ class Progress {
   }
 }
 
+class Log {
+  /**
+   * @param {object} [inputBag]
+   * @param {number} [inputBag.maxEntries]
+   * @param {boolean} [inputBag.isDisabled]
+   */
+  constructor(inputBag = {}) {
+    this._log = [];
+    this._maxEntries = inputBag?.maxEntries || 100;
+    this._isDisabled = inputBag?.isDisabled || false;
+  }
+
+  add(...data) {
+    if (this._isDisabled) {
+      return;
+    }
+    if (this._log.length <= this._maxEntries) {
+      if (data.length === 1) {
+        this._log.push(data[0]);
+      } else if (data.length > 1) {
+        if (data.every(item => typeof item === "string" || typeof item === "number")) {
+          this._log.push(data.map(String).join(", "));
+        } else {
+          this._log.push(data);
+        }
+      }
+    }
+    if (this._log.length === this._maxEntries) {
+      console.log(this._log);
+    }
+  }
+
+  done() {
+    if (this._isDisabled) {
+      return;
+    }
+    if (this._log.length > 0 && this._log.length < this._maxEntries) {
+      console.log(this._log);
+    }
+  }
+}
+
+class NoLog {
+  constructor(inputBag) {}
+  add(...data) {}
+  done() {}
+}
+
 module.exports = {
   setParseOptions,
   parseInputData,
@@ -305,4 +353,6 @@ module.exports = {
   getNthPermutationOfElements,
   paintCoordinates,
   Progress,
+  Log,
+  NoLog,
 };
