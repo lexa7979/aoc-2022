@@ -1,8 +1,24 @@
 const MODES = Object.freeze({
-  PERMUTATION: "n-th permutation",
+  PERMUTATION: 'n-th permutation'
 });
 
+const Global = {
+  factorialMap: {}
+};
+
 class Combinatorics {
+  /**
+   * @param {number} n e.g. 5
+   * @returns {number} e.g. 120
+   */
+  static factorial(n) {
+    const _recursion = n => (n > 1 ? n * _recursion(n - 1) : 1);
+    if (!Global.factorialMap[n]) {
+      Global.factorialMap[n] = _recursion(n);
+    }
+    return Global.factorialMap[n];
+  }
+
   /**
    * @param {object} inputBag
    * @param {Array} inputBag.elements
@@ -28,28 +44,19 @@ class Combinatorics {
 
     this.mode = MODES.PERMUTATION;
 
-    this.factorialMap = {};
     this.currIndex = 0;
     this.count = this.countResults();
-  }
-
-  _factorial(n) {
-    const _recursion = n => (n > 1 ? n * _recursion(n - 1) : 1);
-    if (!this.factorialMap[n]) {
-      this.factorialMap[n] = _recursion(n);
-    }
-    return this.factorialMap[n];
   }
 
   countResults() {
     switch (this.mode) {
       case MODES.PERMUTATION: {
         if (this.areUniqueElements) {
-          return this._factorial(this.elements.length);
+          return Combinatorics.factorial(this.elements.length);
         }
-        let total = this._factorial(this.elements.length);
+        let total = Combinatorics.factorial(this.elements.length);
         this.uniqueElements.forEach(({ count }) => {
-          total /= this._factorial(count);
+          total /= Combinatorics.factorial(count);
         });
         return total;
       }
@@ -97,7 +104,7 @@ class Combinatorics {
         return [];
       }
 
-      const numberOfPermutations = this._factorial(numberOfElements);
+      const numberOfPermutations = Combinatorics.factorial(numberOfElements);
       if (n >= numberOfPermutations) {
         return null;
       }
@@ -116,7 +123,7 @@ class Combinatorics {
   }
 
   _getNumberOfPermutations(listOfCounts, totalCount) {
-    return listOfCounts.reduce((acc, curr) => acc / this._factorial(curr), this._factorial(totalCount));
+    return listOfCounts.reduce((acc, curr) => acc / Combinatorics.factorial(curr), Combinatorics.factorial(totalCount));
   }
 
   /**
@@ -139,8 +146,8 @@ class Combinatorics {
         numberOfElements
       );
       // const numberOfPermutations = remainingUniqueElements.reduce(
-      //   (acc, curr) => acc / this._factorial(curr.count),
-      //   this._factorial(numberOfElements)
+      //   (acc, curr) => acc / Combinatorics.factorial(curr.count),
+      //   Combinatorics.factorial(numberOfElements)
       // );
       console.log(
         n,
@@ -209,5 +216,5 @@ function getNthPermutationOfElements(n, elements) {
 }
 
 module.exports = {
-  Combinatorics,
+  Combinatorics
 };
