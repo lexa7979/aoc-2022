@@ -211,7 +211,7 @@ class Progress {
 
   init(maxStepCount) {
     if (!this.handleLogEvent) {
-      return;
+      return this;
     }
 
     if (this.maxStepCount < 1) {
@@ -224,11 +224,12 @@ class Progress {
 
     this.handleLogEvent([`${new Date().toLocaleTimeString()}:`, "init,", `awaiting ${maxStepCount} steps`].join(" "));
     this.prevProgressLogMS = this.startTS;
+    return this;
   }
 
   step(currStepCount) {
     if (!this.handleLogEvent || !this.startTS || currStepCount === 0) {
-      return;
+      return this;
     }
 
     const now = Date.now();
@@ -241,7 +242,7 @@ class Progress {
       this.prevProgressPercentage == null && currProgressPercentage === 0 && now - this.startTS < 60000;
     const hasJustLogged = now - this.prevProgressLogMS < 5000;
     if (hasAlreadyLoggedCurrentProgressPercentage || hasNotPassedLogTimeoutForFirstPercentage || hasJustLogged) {
-      return;
+      return this;
     }
 
     this.prevProgressLogMS = now;
@@ -266,6 +267,8 @@ class Progress {
         stepsPerSecond >= 2 ? `(${stepsPerSecond} steps/sec)` : `(${secondsPerStep} seconds/step)`,
       ].join(" ")
     );
+
+    return this;
   }
 
   /**
@@ -273,7 +276,7 @@ class Progress {
    */
   finalize(currStepCount = null) {
     if (!this.handleLogEvent || !this.startTS) {
-      return;
+      return this;
     }
 
     const runningTimeMS = Date.now() - this.startTS;
@@ -295,6 +298,7 @@ class Progress {
     );
 
     this.startTS = null;
+    return this;
   }
 }
 
@@ -311,32 +315,32 @@ class Log {
   }
 
   add(...data) {
-    if (this._isDisabled) {
-      return;
-    }
-    if (this._log.length <= this._maxEntries) {
-      if (data.length === 1) {
-        this._log.push(data[0]);
-      } else if (data.length > 1) {
-        if (data.every(item => typeof item === "string" || typeof item === "number")) {
-          this._log.push(data.map(String).join(", "));
-        } else {
-          this._log.push(data);
+    if (!this._isDisabled) {
+      if (this._log.length <= this._maxEntries) {
+        if (data.length === 1) {
+          this._log.push(data[0]);
+        } else if (data.length > 1) {
+          if (data.every(item => typeof item === "string" || typeof item === "number")) {
+            this._log.push(data.map(String).join(", "));
+          } else {
+            this._log.push(data);
+          }
         }
       }
+      if (this._log.length === this._maxEntries) {
+        console.log(this._log);
+      }
     }
-    if (this._log.length === this._maxEntries) {
-      console.log(this._log);
-    }
+    return this;
   }
 
   done() {
-    if (this._isDisabled) {
-      return;
+    if (!this._isDisabled) {
+      if (this._log.length > 0 && this._log.length < this._maxEntries) {
+        console.log(this._log);
+      }
     }
-    if (this._log.length > 0 && this._log.length < this._maxEntries) {
-      console.log(this._log);
-    }
+    return this;
   }
 }
 
