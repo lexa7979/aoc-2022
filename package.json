@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "@types/jest": "^29.2.3"
+  },
+  "devDependencies": {
+    "@lexa79/eslint-config": "^1.0.3"
   }
 }
